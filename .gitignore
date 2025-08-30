@@ -1,0 +1,12 @@
+.env
+serviceAccountKey.json
+.venv/
+venv/
+pycache/
+*.pyc
+*.pyo
+*.pyd
+.idea/
+.vscode/
+.DS_Store
+*.egg-info/

@@ -1,3 +1,5 @@
+# File: core-library/core/prompts.py
+
 from core.schemas import DealData
 
 def get_extraction_prompt():
@@ -16,8 +18,8 @@ def get_extraction_prompt():
     3.  Do not include any text, commentary, or markdown formatting (like ```json) outside of the JSON object.
     4.  Your response must start with `{{` and end with `}}`.
     5.  If a specific piece of information is not found, use a null value or an empty list where appropriate.
+    6.  **If the 'industry_vertical' is not explicitly mentioned in the text, you MUST infer the most appropriate one by analyzing the startup's problem and solution. Assign a value from this list: ["FoodTech", "FinTech", "HealthTech", "EdTech", "Q-Commerce", "e-Commerce", "SaaS", "DeepTech"].**
     
     Adhere strictly to this JSON Schema:
     {DealData.model_json_schema()}
     """
-

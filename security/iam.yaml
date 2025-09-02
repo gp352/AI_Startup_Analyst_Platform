@@ -1,0 +1,19 @@
+bindings:
+- members:
+  - serviceAccount:startup-analyzer@YOUR-PROJECT-ID.iam.gserviceaccount.com
+  role: roles/aiplatform.user
+- members:
+  - serviceAccount:startup-analyzer@YOUR-PROJECT-ID.iam.gserviceaccount.com
+  role: roles/vision.user
+- members:
+  - serviceAccount:startup-analyzer@YOUR-PROJECT-ID.iam.gserviceaccount.com
+  role: roles/bigquery.dataEditor
+- members:
+  - serviceAccount:startup-analyzer@YOUR-PROJECT-ID.iam.gserviceaccount.com
+  role: roles/bigquery.jobUser
+- members:
+  - serviceAccount:startup-analyzer@YOUR-PROJECT-ID.iam.gserviceaccount.com
+  role: roles/datastore.user
+- members:
+  - serviceAccount:startup-analyzer@YOUR-PROJECT-ID.iam.gserviceaccount.com
+  role: roles/storage.objectAdmin

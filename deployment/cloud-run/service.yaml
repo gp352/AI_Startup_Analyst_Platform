@@ -1,0 +1,26 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: startup-analyzer-api
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        # Associate the service with the service account created by Terraform
+        run.googleapis.com/service-account: startup-analyzer@YOUR-PROJECT-ID.iam.gserviceaccount.com
+    spec:
+      containerConcurrency: 10
+      containers:
+      - image: gcr.io/YOUR-PROJECT-ID/startup-analyzer:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "YOUR-PROJECT-ID"
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"

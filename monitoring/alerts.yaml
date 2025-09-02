@@ -1,0 +1,26 @@
+displayName: "Startup Analyzer API Monitoring"
+combiner: OR
+conditions:
+- displayName: "High 5xx Error Rate (> 5%)"
+  conditionThreshold:
+    filter: 'metric.type="run.googleapis.com/request_count" resource.type="cloud_run_revision" resource.label.service_name="startup-analyzer-api" metric.label.response_code_class="5xx"'
+    comparison: COMPARISON_GT
+    thresholdValue: 0.05
+    duration: 300s # 5 minutes
+    aggregations:
+    - alignmentPeriod: 60s
+      perSeriesAligner: ALIGN_RATE
+- displayName: "High p99 Latency (> 15 seconds)"
+  conditionThreshold:
+    filter: 'metric.type="run.googleapis.com/request_latencies" resource.type="cloud_run_revision" resource.label.service_name="startup-analyzer-api"'
+    comparison: COMPARISON_GT
+    thresholdValue: 15000 # 15,000 milliseconds
+    duration: 300s
+    aggregations:
+    - alignmentPeriod: 60s
+      perSeriesAligner: ALIGN_PERCENTILE_99
+
+# You must create a notification channel in Google Cloud Monitoring
+# and add its ID here before applying this policy.
+notificationChannels:
+- projects/YOUR-PROJECT-ID/notificationChannels/YOUR-NOTIFICATION-CHANNEL-ID

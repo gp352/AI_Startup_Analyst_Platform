@@ -16,27 +16,43 @@
         <!-- Header -->
         <header class="text-center mb-10">
             <h1 class="text-4xl font-bold text-gray-900">AI Analyst</h1>
-            <p class="text-lg text-gray-600 mt-2">Upload a pitch deck to generate structured investment insights.</p>
+            <p class="text-lg text-gray-600 mt-2">Upload startup documents to generate structured investment insights.</p>
         </header>
 
         <!-- Upload Section -->
         <div id="upload-section" class="bg-white p-8 rounded-lg shadow-md border border-gray-200">
             <form id="upload-form">
-                <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                            </svg>
-                            <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                            <p class="text-xs text-gray-500">PDF, PPTX, or other document formats</p>
-                            <p id="file-name" class="text-sm text-blue-600 font-semibold mt-2"></p>
-                        </div>
-                        <input id="dropzone-file" type="file" class="hidden" />
-                    </label>
+                <div class="space-y-6">
+                    <!-- Pitch Deck Input -->
+                    <div>
+                        <label for="pitch-deck-file" class="block mb-2 text-sm font-medium text-gray-900">Pitch Deck</label>
+                        <input id="pitch-deck-file" type="file" accept=".pdf" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="mt-1 text-xs text-gray-500">PDF format recommended.</p>
+                    </div>
+
+                    <!-- Call Transcript Input -->
+                    <div>
+                        <label for="transcript-file" class="block mb-2 text-sm font-medium text-gray-900">Call Transcript</label>
+                        <input id="transcript-file" type="file" accept=".txt" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="mt-1 text-xs text-gray-500">TXT format.</p>
+                    </div>
+
+                    <!-- Founder Update Input -->
+                    <div>
+                        <label for="update-file" class="block mb-2 text-sm font-medium text-gray-900">Founder Update</label>
+                        <input id="update-file" type="file" accept=".txt" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="mt-1 text-xs text-gray-500">TXT format.</p>
+                    </div>
+
+                    <!-- Email Input -->
+                    <div>
+                        <label for="email-file" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
+                        <input id="email-file" type="file" accept=".txt" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="mt-1 text-xs text-gray-500">TXT format.</p>
+                    </div>
                 </div>
                 <div class="mt-6 flex justify-center">
-                    <button type="submit" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400" disabled>Analyze Deck</button>
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400" disabled>Analyze Documents</button>
                 </div>
             </form>
         </div>
@@ -65,8 +81,10 @@
     
    <script>
         const uploadForm = document.getElementById('upload-form');
-        const fileInput = document.getElementById('dropzone-file');
-        const fileNameDisplay = document.getElementById('file-name');
+        const pitchDeckInput = document.getElementById('pitch-deck-file');
+        const transcriptInput = document.getElementById('transcript-file');
+        const updateInput = document.getElementById('update-file');
+        const emailInput = document.getElementById('email-file');
         const submitButton = uploadForm.querySelector('button[type="submit"]');
         const uploadSection = document.getElementById('upload-section');
         const loadingSpinner = document.getElementById('loading-spinner');
@@ -89,23 +107,34 @@
             return value;
         };
 
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                fileNameDisplay.textContent = fileInput.files[0].name;
-                submitButton.disabled = false;
-            } else {
-                fileNameDisplay.textContent = '';
-                submitButton.disabled = true;
-            }
-        });
+        const allInputs = [pitchDeckInput, transcriptInput, updateInput, emailInput];
+
+        const checkInputs = () => {
+            // Enable the submit button if at least one file is selected
+            const anyFileSelected = allInputs.some(input => input.files.length > 0);
+            submitButton.disabled = !anyFileSelected;
+        };
+
+        allInputs.forEach(input => input.addEventListener('change', checkInputs));
 
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!fileInput.files.length) return;
-
-            const file = fileInput.files[0];
+            
+            // --- New Logic: Collect all selected files ---
             const formData = new FormData();
-            formData.append('file', file);
+            let fileFound = false;
+            allInputs.forEach(input => {
+                if (input.files.length > 0) {
+                    // The backend expects a list of files under the key 'files'
+                    formData.append('files', input.files[0]);
+                    fileFound = true;
+                }
+            });
+
+            if (!fileFound) {
+                alert("Please select at least one file to analyze.");
+                return;
+            }
 
             uploadSection.classList.add('hidden');
             loadingSpinner.classList.remove('hidden');
@@ -115,22 +144,31 @@
                 const ingestResponse = await fetch(INGESTION_SERVICE_URL, { method: 'POST', body: formData });
                 if (!ingestResponse.ok) throw new Error((await ingestResponse.json()).detail || 'Ingestion failed');
                 const ingestData = await ingestResponse.json();
-
-                const dealResponse = await fetch(`${DEAL_SERVICE_URL}/${ingestData.deal_id}`);
-                if (!dealResponse.ok) throw new Error((await dealResponse.json()).detail || 'Failed to fetch deal data');
-                const dealData = await dealResponse.json();
-
+                
                 let benchmarkData = null;
-                const { startup_name, industry_vertical, sector, financials } = dealData.data;
-
+                // --- FIX: Use the data directly from the ingestion service response ---
+                const { startup_name, industry_vertical, sector, financials } = ingestData.data;
+                
                 if (industry_vertical && sector) {
                     const benchmarkPayload = {
                         startup_name,
                         industry_vertical,
                         sector,
-                        annual_revenue: parseFinancialString(financials['Annual Revenue'] || financials['Revenue']),
-                        hiring_velocity: parseFinancialString(financials['Hiring Velocity'] || financials.hiring_velocity),
-                        valuation_usd: parseFinancialString(financials['Valuation USD'] || financials['Market Valuation'])
+                        // --- FIX: Make financial key lookup more robust ---
+                        // Look for Annual Revenue, or calculate it from MRR, or use GMV as a fallback.
+                        annual_revenue: parseFinancialString(
+                            financials['Annual Revenue'] || financials['Revenue'] || financials['yearly revenue']
+                        ) || (parseFinancialString(financials['MRR']) ? parseFinancialString(financials['MRR']) * 12 : parseFinancialString(financials['GMV'])),
+
+                        // Look for various hiring-related keys.
+                        hiring_velocity: parseFinancialString(
+                            financials['Hiring Velocity'] || financials['hiring_velocity'] || financials['New Hires'] || financials['Drivers Onboarded'] || null
+                        ),
+
+                        // Look for various valuation keys.
+                        valuation_usd: parseFinancialString(
+                            financials['Valuation USD'] || financials['Market Valuation'] || financials['valuation'] ||financials['Valuation'] || financials['Company Valuation'] || financials["company's valuation"] || financials['company valuation'] || null
+                        )
                     };
 
                     const benchmarkResponse = await fetch(BENCHMARKING_SERVICE_URL, {
@@ -146,7 +184,7 @@
                     }
                 }
 
-                displayResults(dealData.data, benchmarkData);
+                displayResults(ingestData.data, benchmarkData);
 
             } catch (error) {
                 console.error('Error:', error);
@@ -174,9 +212,23 @@
                     return new Intl.NumberFormat('en-US', options).format(num);
                 }
 
-                const startupValuation = data.financials['Valuation USD'] || data.financials['Market Valuation'];
-                const startupRevenue = data.financials['Annual Revenue'] || data.financials['Revenue'];
+                // --- FIX: Use the same robust logic for displaying results in the table ---
+                const startupValuation = data.financials['Valuation USD'] || data.financials['Market Valuation'] || data.financials['valuation'] || data.financials['Company Valuation'] || data.financials["company's valuation"] || data.financials['company valuation'] || null;
+                
+                let startupRevenue = data.financials['Annual Revenue'] || data.financials['Revenue'] || data.financials['yearly revenue'] || null;
+                // If annual revenue isn't found, try calculating from MRR or use GMV.
+                if (!startupRevenue) {
+                    const mrr = parseFinancialString(data.financials['MRR']);
+                    startupRevenue = mrr ? mrr * 12 : (data.financials['GMV'] || null);
+                }
+
                 const startupMultiple = startupValuation && startupRevenue ? (parseFinancialString(startupValuation) / parseFinancialString(startupRevenue)).toFixed(1) + 'x' : 'N/A';
+                
+                const startupHiring = data.financials['Hiring Velocity'] || data.financials.hiring_velocity || data.financials['New Hires'] || data.financials['Drivers Onboarded'] || null;
+
+                // Use the corrected variables in the table row
+                const startupValuationFormatted = formatNum(startupValuation, true);
+                const startupRevenueFormatted = formatNum(startupRevenue, true);
                 
                 let tableHTML = `
                     <div class="bg-white p-6 rounded-lg shadow-md mb-6 border">
@@ -195,10 +247,10 @@
                                 <tbody>
                                     <tr class="bg-blue-50 font-semibold border-b">
                                         <td class="p-3">${data.startup_name} (Your Startup)</td>
-                                        <td class="p-3 text-right">${formatNum(startupValuation, true)}</td>
-                                        <td class="p-3 text-right">${formatNum(startupRevenue, true)}</td>
+                                        <td class="p-3 text-right">${startupValuationFormatted}</td>
+                                        <td class="p-3 text-right">${startupRevenueFormatted}</td>
                                         <td class="p-3 text-right">${startupMultiple}</td>
-                                        <td class="p-3 text-right">${formatNum(data.financials['Hiring Velocity'])}</td>
+                                        <td class="p-3 text-right">${formatNum(startupHiring)}</td>
                                     </tr>
                                     ${benchmarkData.peer_details.map(peer => `
                                     <tr class="border-b">

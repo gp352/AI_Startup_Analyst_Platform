@@ -1,7 +1,12 @@
 # File: core-library/core/schemas.py
 
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict, Union, Any
+
+class RiskItem(BaseModel):
+    risk: str = Field(..., description="A concise description of a single potential risk, red flag, or concern.")
+    explanation: str = Field(..., description="A brief explanation of why this is a risk and what its implications are.")
+    severity: str = Field(..., description="The estimated severity of the risk (e.g., 'Low', 'Medium', 'High').")
 
 class TeamMember(BaseModel):
     name: str = Field(description="Full name of the team member.")
@@ -36,7 +41,10 @@ class DealData(BaseModel):
         description="Total Addressable Market in USD.", 
         default=None
     )
-    financials: Dict[str, Union[float, str, None]] = Field(
+    risk_analysis: List[RiskItem] = Field(
+        description="A list of potential risks, red flags, or inconsistencies identified in the provided documents."
+    )
+    financials: Dict[str, Any] = Field(
         default_factory=dict,
         description="A dictionary of all financial metrics found. The key is the metric name (e.g., 'Revenue 2024', 'MRR', 'Funding Ask') and the value is the number or text."
     )

@@ -46,26 +46,45 @@ model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
 # --- API Endpoints ---
 @app.post("/ingest/file")
-async def ingest_file(file: UploadFile = File(...)):
+async def ingest_file(files: list[UploadFile] = File(...)):
     """
-    Accepts a file upload, extracts structured data using Gemini,
+    Accepts one or more file uploads, extracts structured data using Gemini,
     and saves it via the Deal Management Service.
     """
-    print(f"Processing file: {file.filename}...")
-    file_bytes = await file.read()
+    if not files:
+        raise HTTPException(status_code=400, detail="No files were uploaded.")
 
-    # --- CORRECTED LOGIC ---
-    # Instead of calling upload_file, we create a "file part" object
-    # that generate_content can understand directly.
+    print(f"Processing {len(files)} file(s)...")
+
+    # --- New Logic: Prepare all files for Gemini ---
     prompt = get_extraction_prompt()
-    file_part = {
-        "mime_type": file.content_type,
-        "data": file_bytes
-    }
+    # Start the payload with the main prompt
+    gemini_payload = [prompt]
+
+    for file in files:
+        print(f"Preparing file: {file.filename}...")
+        file_bytes = await file.read()
+
+        # Determine the MIME type based on the file extension
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension == ".pdf":
+            mime_type = "application/pdf"
+        elif file_extension == ".txt":
+            mime_type = "text/plain"
+        else:
+            mime_type = file.content_type # Fallback
+
+        print(f"Determined MIME type: {mime_type} for file: {file.filename}")
+
+        # Add an introductory text part for each file to give context to the LLM
+        gemini_payload.append(f"--- Start of Document: {file.filename} ---")
+        # Add the file part itself
+        gemini_payload.append({"mime_type": mime_type, "data": file_bytes})
+        gemini_payload.append(f"--- End of Document: {file.filename} ---")
 
     print("Generating content with Gemini...")
     # Pass the prompt and the file part directly to the model
-    response = model.generate_content([prompt, file_part])
+    response = model.generate_content(gemini_payload)
 
     try:
         print("Validating Gemini response...")
@@ -83,8 +102,13 @@ async def ingest_file(file: UploadFile = File(...)):
             api_response = await client.post(DEAL_SERVICE_URL, json=deal_data.model_dump())
             api_response.raise_for_status() # Raises an exception for 4xx/5xx responses
 
+        deal_service_response = api_response.json()
         print("Data saved successfully.")
-        return api_response.json() # Return the response from the deal service
+        
+        # The frontend expects an object with a 'data' key containing the deal info
+        # and a 'deal_id' key at the top level.
+        return {"deal_id": deal_service_response.get("deal_id"), "data": deal_data.model_dump()}
+
 
     except ValidationError as e:
         print(f"Pydantic Validation Error: {e}")
@@ -95,5 +119,3 @@ async def ingest_file(file: UploadFile = File(...)):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
-
-

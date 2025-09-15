@@ -27,6 +27,7 @@ class BenchmarkRequest(BaseModel):
     sector: str
     annual_revenue: int | None = None
     hiring_velocity: int | None = None
+    valuation_usd: int | None = None
     startup_name: str
 
 class PeerComparison(BaseModel):
@@ -69,20 +70,23 @@ async def benchmark_metrics(request: BenchmarkRequest):
         if not peer_details:
             return BenchmarkResponse(peer_details=[], final_conclusion="No comparable peers found in the dataset.")
 
+        print("request", request)
         # --- FIX: Handle potential None values before formatting the prompt ---
         revenue_str = f"${request.annual_revenue:,}" if request.annual_revenue is not None else "N/A"
         hiring_str = f"{request.hiring_velocity} new hires in 6 months" if request.hiring_velocity is not None else "N/A"
+        valuation_str = f"${request.valuation_usd:,}" if request.valuation_usd is not None else "N/A"
 
         prompt = f"""
         You are a venture capital analyst. Here is the data for a startup named '{request.startup_name}':
         - Annual Revenue: {revenue_str}
+        - Valuation: {valuation_str}
         - Hiring Velocity: {hiring_str}
 
         Here is the data for its peer companies:
         {', '.join([p.model_dump_json() for p in peer_details])}
 
         Based on this data, write a 2-3 sentence conclusion comparing '{request.startup_name}' to its peers.
-        Is it ahead or behind? Focus on revenue multiples and hiring velocity.
+        Is it ahead or behind? Focus on valuation, revenue multiples, and hiring velocity.
         """
         
         response = model.generate_content(prompt)

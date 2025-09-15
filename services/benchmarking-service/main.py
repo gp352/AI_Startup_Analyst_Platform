@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from google.cloud import bigquery
-from dotenv import load_dotenv
+from dotenv import load_dotenv 
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 
@@ -15,7 +15,7 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 app = FastAPI(title="Detailed Benchmarking Service")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*", "null"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,13 +37,25 @@ class PeerComparison(BaseModel):
     hiring_velocity: int | None
     revenue_multiple: float | None
 
+class RiskItem(BaseModel):
+    risk: str
+    explanation: str
+    severity: str
+
+class RiskAnalysisRequest(BaseModel):
+    startup_data: dict
+
+class RiskAnalysisResponse(BaseModel):
+    risk_analysis: list[RiskItem]
+
 class BenchmarkResponse(BaseModel):
     peer_details: list[PeerComparison]
     final_conclusion: str
 
 # --- BigQuery & Gemini Clients ---
 client = bigquery.Client()
-model = genai.GenerativeModel('gemini-2.0-flash-exp')
+# Use a more capable model for analysis tasks
+model = genai.GenerativeModel('gemini-1.5-flash-latest') 
 
 # --- API Endpoints ---
 @app.post("/benchmark", response_model=BenchmarkResponse)
@@ -99,3 +111,33 @@ async def benchmark_metrics(request: BenchmarkRequest):
     except Exception as e:
         print(f"An error occurred: {e}") # Added print for better debugging
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+
+@app.post("/analyze-risks", response_model=RiskAnalysisResponse)
+async def analyze_risks(request: RiskAnalysisRequest):
+    """
+    Analyzes startup data to identify potential risks.
+    """
+    prompt = f"""
+    You are a skeptical venture capital analyst. Your task is to identify potential risks, red flags, or concerns based on the provided startup data.
+
+    **CRITICAL INSTRUCTIONS:**
+    1.  Analyze the following data: {request.startup_data}
+    2.  Identify 3-5 potential risks. Examples include: inflated market size, high burn rate with low revenue, key metrics missing, extreme valuation compared to revenue, or competitive landscape concerns.
+    3.  For each risk, provide a 'risk' (short title), 'explanation' (why it's a concern), and 'severity' ('Low', 'Medium', or 'High').
+    4.  Your entire output MUST be a single, valid JSON object with a single key "risk_analysis" which is a list of risk items.
+    5.  Do not include any text, commentary, or markdown formatting (like ```json) outside of the JSON object.
+    
+    Example Response Format:
+    {{
+        "risk_analysis": [
+            {{"risk": "Example Risk", "explanation": "This is an example.", "severity": "Medium"}}
+        ]
+    }}
+    """
+    try:
+        response = model.generate_content(prompt)
+        cleaned_json = response.text.strip().removeprefix("```json").removesuffix("```").strip()
+        return RiskAnalysisResponse.model_validate_json(cleaned_json)
+    except Exception as e:
+        print(f"An error occurred during risk analysis: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to analyze risks: {e}")

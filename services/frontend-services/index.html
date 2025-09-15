@@ -73,7 +73,42 @@
         <div id="results-section" class="hidden bg-white p-8 rounded-lg shadow-md border border-gray-200 mt-10">
             <h2 class="text-2xl font-bold mb-6 border-b pb-4">Analysis Results</h2>
             <div id="benchmark-content" class="mb-6"></div> 
+            <div id="risk-content" class="mb-6"></div>
             <div id="results-content" class="space-y-6"></div>
+        </div>
+
+        <!-- Recommendation Section -->
+        <div id="recommendation-section" class="hidden bg-white p-8 rounded-lg shadow-md border border-gray-200 mt-10">
+            <h2 class="text-2xl font-bold mb-6 border-b pb-4">Investment Recommendation</h2>
+            
+            <!-- Weightages Form -->
+            <div id="weights-form-container" class="mb-8">
+                <h3 class="text-lg font-semibold mb-2">Set Your Investment Thesis Weights</h3>
+                <p class="text-sm text-gray-600 mb-4">Adjust the sliders to reflect your investment priorities. The total must equal 100%.</p>
+                <form id="weights-form" class="space-y-4">
+                    <div class="weight-slider">
+                        <label for="team-weight" class="flex justify-between"><span>Team</span><span class="font-mono" id="team-weight-value">25%</span></label>
+                        <input type="range" id="team-weight" min="0" max="100" value="25" class="w-full">
+                    </div>
+                    <div class="weight-slider">
+                        <label for="product-weight" class="flex justify-between"><span>Product</span><span class="font-mono" id="product-weight-value">25%</span></label>
+                        <input type="range" id="product-weight" min="0" max="100" value="25" class="w-full">
+                    </div>
+                    <div class="weight-slider">
+                        <label for="market-weight" class="flex justify-between"><span>Market</span><span class="font-mono" id="market-weight-value">25%</span></label>
+                        <input type="range" id="market-weight" min="0" max="100" value="25" class="w-full">
+                    </div>
+                    <div class="weight-slider">
+                        <label for="financials-weight" class="flex justify-between"><span>Financials</span><span class="font-mono" id="financials-weight-value">25%</span></label>
+                        <input type="range" id="financials-weight" min="0" max="100" value="25" class="w-full">
+                    </div>
+                    <div class="text-right font-semibold" id="total-weight">Total: 100%</div>
+                    <button type="submit" id="generate-recommendation-btn" class="w-full bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400">Generate Recommendation</button>
+                </form>
+            </div>
+
+            <!-- Recommendation Result -->
+            <div id="recommendation-result"></div>
         </div>
 
     </div>
@@ -91,9 +126,11 @@
         const resultsSection = document.getElementById('results-section');
         const resultsContent = document.getElementById('results-content');
         const benchmarkContent = document.getElementById('benchmark-content');
+        const riskContent = document.getElementById('risk-content'); // New element for risks
         const INGESTION_SERVICE_URL = 'http://127.0.0.1:8000/ingest/file';
         const DEAL_SERVICE_URL = 'http://127.0.0.1:8001/deals';
         const BENCHMARKING_SERVICE_URL = 'http://127.0.0.1:8002/benchmark';
+        const SYNTHESIS_SERVICE_URL = 'http://127.0.0.1:8003/generate-recommendation';
 
         // --- FIX: Moved helper function to the global scope ---
         const parseFinancialString = (str) => {
@@ -139,11 +176,13 @@
             uploadSection.classList.add('hidden');
             loadingSpinner.classList.remove('hidden');
             resultsSection.classList.add('hidden');
+            document.getElementById('recommendation-section').classList.add('hidden');
 
             try {
                 const ingestResponse = await fetch(INGESTION_SERVICE_URL, { method: 'POST', body: formData });
                 if (!ingestResponse.ok) throw new Error((await ingestResponse.json()).detail || 'Ingestion failed');
                 const ingestData = await ingestResponse.json();
+                const startupData = ingestData.data;
                 
                 let benchmarkData = null;
                 // --- FIX: Use the data directly from the ingestion service response ---
@@ -184,7 +223,25 @@
                     }
                 }
 
-                displayResults(ingestData.data, benchmarkData);
+                // --- NEW: Asynchronously call the risk analysis endpoint ---
+                let riskData = null;
+                try {
+                    const riskResponse = await fetch(`${BENCHMARKING_SERVICE_URL.replace('/benchmark', '/analyze-risks')}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ startup_data: startupData })
+                    });
+                    if (riskResponse.ok) {
+                        riskData = await riskResponse.json();
+                    } else {
+                        console.error("Risk analysis service failed:", await riskResponse.text());
+                    }
+                } catch (riskError) {
+                    console.error("Error calling risk analysis service:", riskError);
+                }
+                // --- END NEW ---
+
+                displayResults(startupData, benchmarkData, riskData);
 
             } catch (error) {
                 console.error('Error:', error);
@@ -192,14 +249,120 @@
             } finally {
                 loadingSpinner.classList.add('hidden');
                 resultsSection.classList.remove('hidden');
+                document.getElementById('recommendation-section').classList.remove('hidden');
             }
         });
 
-        function displayResults(data, benchmarkData) {
+        // --- NEW: Logic for Recommendation Weightages ---
+        const weightsForm = document.getElementById('weights-form');
+        const sliders = {
+            team: document.getElementById('team-weight'),
+            product: document.getElementById('product-weight'),
+            market: document.getElementById('market-weight'),
+            financials: document.getElementById('financials-weight')
+        };
+        const values = {
+            team: document.getElementById('team-weight-value'),
+            product: document.getElementById('product-weight-value'),
+            market: document.getElementById('market-weight-value'),
+            financials: document.getElementById('financials-weight-value')
+        };
+        const totalWeightEl = document.getElementById('total-weight');
+        const generateBtn = document.getElementById('generate-recommendation-btn');
+
+        const updateTotal = () => {
+            const total = Object.values(sliders).reduce((sum, s) => sum + parseInt(s.value), 0);
+            totalWeightEl.textContent = `Total: ${total}%`;
+            if (total === 100) {
+                totalWeightEl.classList.remove('text-red-500');
+                totalWeightEl.classList.add('text-green-600');
+                generateBtn.disabled = false;
+            } else {
+                totalWeightEl.classList.add('text-red-500');
+                totalWeightEl.classList.remove('text-green-600');
+                generateBtn.disabled = true;
+            }
+        };
+
+        Object.entries(sliders).forEach(([key, slider]) => {
+            slider.addEventListener('input', () => {
+                values[key].textContent = `${slider.value}%`;
+                updateTotal();
+            });
+        });
+
+        weightsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const startupData = JSON.parse(e.target.dataset.startupData); // Retrieve stored data
+
+            const weights = {
+                team: parseInt(sliders.team.value) / 100,
+                product: parseInt(sliders.product.value) / 100,
+                market: parseInt(sliders.market.value) / 100,
+                financials: parseInt(sliders.financials.value) / 100
+            };
+
+            const payload = { startup_data: startupData, weights: weights };
+            const resultContainer = document.getElementById('recommendation-result');
+            resultContainer.innerHTML = `<p class="text-center">Generating recommendation...</p>`;
+
+            try {
+                const response = await fetch(SYNTHESIS_SERVICE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Failed to generate recommendation.');
+                const recData = await response.json();
+                displayRecommendation(recData);
+
+            } catch (error) {
+                resultContainer.innerHTML = `<p class="text-red-500 text-center">${error.message}</p>`;
+            }
+        });
+
+        function displayRecommendation(recData) {
+            const resultContainer = document.getElementById('recommendation-result');
+            const verdictColors = {
+                'Fund': 'bg-green-100 border-green-500 text-green-800',
+                'Review': 'bg-yellow-100 border-yellow-500 text-yellow-800',
+                'Pass': 'bg-red-100 border-red-500 text-red-800'
+            };
+
+            const pillarHTML = recData.pillar_scores.map(p => `
+                <div class="flex justify-between items-center py-2 border-b">
+                    <span class="font-semibold">${p.pillar}</span>
+                    <div class="text-right">
+                        <span class="font-bold text-lg">${p.score}/10</span>
+                        <p class="text-xs text-gray-500">${p.reasoning}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            resultContainer.innerHTML = `
+                <div class="border rounded-lg p-6 ${verdictColors[recData.final_verdict] || 'bg-gray-100'}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold">${recData.final_verdict}</h3>
+                            <p class="text-lg">${recData.recommendation_summary}</p>
+                        </div>
+                        <div class="text-3xl font-bold text-right">${recData.final_score.toFixed(1)}<span class="text-base">/10</span></div>
+                    </div>
+                    <div class="mt-6 bg-white/50 p-4 rounded">${pillarHTML}</div>
+                </div>
+            `;
+        }
+
+        function displayResults(data, benchmarkData, riskData) {
             resultsContent.innerHTML = '';
             benchmarkContent.innerHTML = '';
+            riskContent.innerHTML = '';
 
             if (benchmarkData && benchmarkData.peer_details.length > 0) {
+
+                // Store startup data for the recommendation form
+                document.getElementById('weights-form').dataset.startupData = JSON.stringify(data);
 
                 const formatNum = (num, isCurrency = false, isCompact = true) => {
                     if (num === null || num === undefined) return 'N/A';
@@ -274,6 +437,34 @@
                     </div>
                 `;
                 benchmarkContent.innerHTML = tableHTML;
+            }
+
+            // --- NEW: Render Risk Analysis Section ---
+            if (riskData && riskData.risk_analysis && riskData.risk_analysis.length > 0) {
+                const severityColors = {
+                    'Low': 'bg-yellow-100 border-yellow-400 text-yellow-800',
+                    'Medium': 'bg-orange-100 border-orange-400 text-orange-800',
+                    'High': 'bg-red-100 border-red-400 text-red-800',
+                };
+
+                const riskItemsHTML = riskData.risk_analysis.map(item => {
+                    const colorClasses = severityColors[item.severity] || 'bg-gray-100 border-gray-400 text-gray-800';
+                    return `
+                        <div class="p-4 rounded-lg border-l-4 ${colorClasses}">
+                            <div class="flex justify-between items-center">
+                                <p class="font-bold">${item.risk}</p>
+                                <span class="text-sm font-semibold px-2 py-1 rounded-full ${colorClasses}">${item.severity}</span>
+                            </div>
+                            <p class="mt-2 text-sm">${item.explanation}</p>
+                        </div>
+                    `;
+                }).join('');
+
+                const riskSectionHTML = `
+                    <div class="mb-6"><h3 class="text-xl font-bold mb-4 border-b pb-2">Risk Analysis</h3><div class="space-y-4">${riskItemsHTML}</div></div>
+                `;
+                // Add the risk section to its dedicated container
+                riskContent.innerHTML = riskSectionHTML;
             }
 
             const renderField = (label, value) => {

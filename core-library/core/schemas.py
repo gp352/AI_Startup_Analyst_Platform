@@ -42,6 +42,7 @@ class DealData(BaseModel):
         default=None
     )
     risk_analysis: List[RiskItem] = Field(
+        default_factory=list,
         description="A list of potential risks, red flags, or inconsistencies identified in the provided documents."
     )
     financials: Dict[str, Any] = Field(

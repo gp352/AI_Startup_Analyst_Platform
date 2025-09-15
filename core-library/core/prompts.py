@@ -20,7 +20,6 @@ def get_extraction_prompt():
     5.  If a specific piece of information is not found, use a null value or an empty list where appropriate.
     6.  **If the 'industry_vertical' is not explicitly mentioned in the text, you MUST infer the most appropriate one by analyzing the startup's problem and solution. Assign a value from this list: ["FoodTech", "FinTech", "HealthTech", "EdTech", "Q-Commerce", "e-Commerce", "SaaS", "DeepTech"].**
     7.  **Within the 'financials' object, prioritize extracting metrics with these exact keys if the information is available: "Annual Revenue", "Valuation USD", "Hiring Velocity".**
-    8.  **Act as a skeptical analyst for the 'risk_analysis' section. Identify potential red flags, inconsistencies between documents, or concerns. Examples include: inflated market size, high burn rate with low revenue, key metrics missing, or inconsistencies in user numbers. For each risk, provide a 'risk', 'explanation', and 'severity'.**
     
     Adhere strictly to this JSON Schema:
     {DealData.model_json_schema()}

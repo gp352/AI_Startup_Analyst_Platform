@@ -5,163 +5,710 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Analyst for Startups</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* Animated background */
+        .bg-animated {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Glass morphism effects */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Enhanced file upload styling */
+        .file-input-wrapper {
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+            border: 2px dashed #cbd5e0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .file-input-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+        
+        .file-input-wrapper:hover::before {
+            left: 100%;
+        }
+        
+        .file-input-wrapper:hover, .file-input-wrapper.dragover {
+            border-color: #3b82f6;
+            background: linear-gradient(145deg, #dbeafe, #bfdbfe);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        /* Modal enhancements */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* Button animations */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Tab styling */
+        .tab-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Animated stats cards */
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card.team { border-left-color: #10b981; }
+        .stat-card.product { border-left-color: #3b82f6; }
+        .stat-card.market { border-left-color: #f59e0b; }
+        .stat-card.financials { border-left-color: #ef4444; }
+        
+        /* Loading spinner enhancement */
+        .loading-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Floating elements */
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Progress bars */
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            height: 8px;
+            transition: width 1s ease-in-out;
+        }
+        
+        /* Risk severity styling */
+        .risk-low { 
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+        }
+        .risk-medium { 
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            border-left: 4px solid #ea580c;
+        }
+        .risk-high { 
+            background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
+            border-left: 4px solid #dc2626;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+        
+        /* Info cards */
+        .info-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Feature highlights */
+        .feature-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-animated text-gray-800 antialiased">
 
-    <div class="container mx-auto max-w-4xl p-4 md:p-8">
-        <!-- Header -->
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-gray-900">AI Analyst</h1>
-            <p class="text-lg text-gray-600 mt-2">Upload startup documents to generate structured investment insights.</p>
-        </header>
+    <!-- Floating background elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+    </div>
 
-        <!-- Upload Section -->
-        <div id="upload-section" class="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+        <div class="modal-content p-8 rounded-2xl w-full max-w-4xl mx-4 transform scale-95">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                        <i class="fas fa-rocket mr-3"></i>Analyze a New Startup
+                    </h2>
+                    <p class="text-gray-600 mt-2">Upload documents to generate comprehensive investment insights</p>
+                </div>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 text-3xl transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
             <form id="upload-form">
-                <div class="space-y-6">
-                    <!-- Pitch Deck Input -->
-                    <div>
-                        <label for="pitch-deck-file" class="block mb-2 text-sm font-medium text-gray-900">Pitch Deck</label>
-                        <input id="pitch-deck-file" type="file" accept=".pdf" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <p class="mt-1 text-xs text-gray-500">PDF format recommended.</p>
+                <div class="mb-8">
+                    <label for="startup-name-input" class="block mb-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                        <i class="fas fa-building mr-2"></i>Startup Name
+                    </label>
+                    <input type="text" id="startup-name-input" 
+                           class="bg-white border-2 border-gray-200 text-gray-900 text-lg rounded-xl focus:ring-4 focus:ring-purple-200 focus:border-purple-400 block w-full p-4 transition-all duration-300" 
+                           placeholder="e.g., Acme Inc." required>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="file-input-wrapper relative rounded-2xl p-8 text-center">
+                        <input id="pitch-deck-file" type="file" accept=".pdf">
+                        <div class="file-input-content">
+                            <div class="float">
+                                <i class="fas fa-file-pdf text-6xl text-red-500 mb-4"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-700 mb-2">Pitch Deck</h3>
+                            <p class="text-sm text-gray-500 mb-2" id="pitch-deck-file-name">Drag & drop or click to upload</p>
+                            <span class="inline-block bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">.PDF</span>
+                        </div>
                     </div>
-
-                    <!-- Call Transcript Input -->
-                    <div>
-                        <label for="transcript-file" class="block mb-2 text-sm font-medium text-gray-900">Call Transcript</label>
-                        <input id="transcript-file" type="file" accept=".txt" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <p class="mt-1 text-xs text-gray-500">TXT format.</p>
+                    
+                    <div class="file-input-wrapper relative rounded-2xl p-8 text-center">
+                        <input id="transcript-file" type="file" accept=".txt">
+                        <div class="file-input-content">
+                            <div class="float" style="animation-delay: 0.5s;">
+                                <i class="fas fa-microphone text-6xl text-blue-500 mb-4"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-700 mb-2">Call Transcript</h3>
+                            <p class="text-sm text-gray-500 mb-2" id="transcript-file-name">Drag & drop or click to upload</p>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">.TXT</span>
+                        </div>
                     </div>
-
-                    <!-- Founder Update Input -->
-                    <div>
-                        <label for="update-file" class="block mb-2 text-sm font-medium text-gray-900">Founder Update</label>
-                        <input id="update-file" type="file" accept=".txt" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <p class="mt-1 text-xs text-gray-500">TXT format.</p>
+                    
+                    <div class="file-input-wrapper relative rounded-2xl p-8 text-center">
+                        <input id="update-file" type="file" accept=".txt">
+                        <div class="file-input-content">
+                            <div class="float" style="animation-delay: 1s;">
+                                <i class="fas fa-chart-line text-6xl text-green-500 mb-4"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-700 mb-2">Founder Update</h3>
+                            <p class="text-sm text-gray-500 mb-2" id="update-file-name">Drag & drop or click to upload</p>
+                            <span class="inline-block bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">.TXT</span>
+                        </div>
                     </div>
-
-                    <!-- Email Input -->
-                    <div>
-                        <label for="email-file" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
-                        <input id="email-file" type="file" accept=".txt" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <p class="mt-1 text-xs text-gray-500">TXT format.</p>
+                    
+                    <div class="file-input-wrapper relative rounded-2xl p-8 text-center">
+                        <input id="email-file" type="file" accept=".txt">
+                        <div class="file-input-content">
+                            <div class="float" style="animation-delay: 1.5s;">
+                                <i class="fas fa-envelope text-6xl text-yellow-500 mb-4"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-700 mb-2">Email</h3>
+                            <p class="text-sm text-gray-500 mb-2" id="email-file-name">Drag & drop or click to upload</p>
+                            <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full">.TXT</span>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-center">
-                    <button type="submit" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400" disabled>Analyze Documents</button>
+                
+                <div class="flex justify-end">
+                    <button type="submit" 
+                            class="btn-primary text-white font-bold py-4 px-10 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-300 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed text-lg" 
+                            disabled>
+                        <i class="fas fa-magic mr-3"></i>Generate Analysis
+                    </button>
                 </div>
             </form>
         </div>
-        
-        <!-- Loading Spinner -->
-        <div id="loading-spinner" class="hidden text-center my-10">
-             <div role="status" class="flex justify-center items-center flex-col">
-                <svg aria-hidden="true" class="w-12 h-12 text-gray-200 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                </svg>
-                <p class="text-lg text-gray-600 mt-4">Analyzing document with Gemini...</p>
-                <p class="text-sm text-gray-500">This may take a moment.</p>
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <div id="results-section" class="hidden bg-white p-8 rounded-lg shadow-md border border-gray-200 mt-10">
-            <h2 class="text-2xl font-bold mb-6 border-b pb-4">Analysis Results</h2>
-            <div id="benchmark-content" class="mb-6"></div> 
-            <div id="risk-content" class="mb-6"></div>
-            <div id="results-content" class="space-y-6"></div>
-        </div>
-
-        <!-- Recommendation Section -->
-        <div id="recommendation-section" class="hidden bg-white p-8 rounded-lg shadow-md border border-gray-200 mt-10">
-            <h2 class="text-2xl font-bold mb-6 border-b pb-4">Investment Recommendation</h2>
-            
-            <!-- Weightages Form -->
-            <div id="weights-form-container" class="mb-8">
-                <h3 class="text-lg font-semibold mb-2">Set Your Investment Thesis Weights</h3>
-                <p class="text-sm text-gray-600 mb-4">Adjust the sliders to reflect your investment priorities. The total must equal 100%.</p>
-                <form id="weights-form" class="space-y-4">
-                    <div class="weight-slider">
-                        <label for="team-weight" class="flex justify-between"><span>Team</span><span class="font-mono" id="team-weight-value">25%</span></label>
-                        <input type="range" id="team-weight" min="0" max="100" value="25" class="w-full">
-                    </div>
-                    <div class="weight-slider">
-                        <label for="product-weight" class="flex justify-between"><span>Product</span><span class="font-mono" id="product-weight-value">25%</span></label>
-                        <input type="range" id="product-weight" min="0" max="100" value="25" class="w-full">
-                    </div>
-                    <div class="weight-slider">
-                        <label for="market-weight" class="flex justify-between"><span>Market</span><span class="font-mono" id="market-weight-value">25%</span></label>
-                        <input type="range" id="market-weight" min="0" max="100" value="25" class="w-full">
-                    </div>
-                    <div class="weight-slider">
-                        <label for="financials-weight" class="flex justify-between"><span>Financials</span><span class="font-mono" id="financials-weight-value">25%</span></label>
-                        <input type="range" id="financials-weight" min="0" max="100" value="25" class="w-full">
-                    </div>
-                    <div class="text-right font-semibold" id="total-weight">Total: 100%</div>
-                    <button type="submit" id="generate-recommendation-btn" class="w-full bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition disabled:bg-gray-400">Generate Recommendation</button>
-                </form>
-            </div>
-
-            <!-- Recommendation Result -->
-            <div id="recommendation-result"></div>
-        </div>
-
     </div>
 
+    <div class="container mx-auto max-w-7xl p-4 md:p-8 relative z-10">
+        <!-- Enhanced Header -->
+        <header class="text-center mb-12">
+            <div class="glass-card rounded-3xl p-12 mb-8">
+                <h1 class="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 tracking-tight mb-4">
+                    AI Startup Analyst
+                </h1>
+                <p class="text-2xl text-gray-600 mb-6">Generate structured investment insights from startup documents</p>
+                
+                <!-- Feature highlights -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div class="info-card rounded-2xl p-6">
+                        <i class="fas fa-brain text-3xl text-purple-500 mb-3"></i>
+                        <h3 class="font-bold text-lg mb-2">AI-Powered Analysis</h3>
+                        <p class="text-gray-600 text-sm">Advanced machine learning algorithms analyze your startup documents</p>
+                    </div>
+                    <div class="info-card rounded-2xl p-6">
+                        <i class="fas fa-chart-bar text-3xl text-blue-500 mb-3"></i>
+                        <h3 class="font-bold text-lg mb-2">Comprehensive Insights</h3>
+                        <p class="text-gray-600 text-sm">Get detailed analysis across team, product, market, and financial dimensions</p>
+                    </div>
+                    <div class="info-card rounded-2xl p-6">
+                        <i class="fas fa-lightning-bolt text-3xl text-yellow-500 mb-3"></i>
+                        <h3 class="font-bold text-lg mb-2">Instant Results</h3>
+                        <p class="text-gray-600 text-sm">Receive investment recommendations in minutes, not hours</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Enhanced Controls -->
+        <div class="glass-card rounded-2xl p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="flex-1">
+                    <label for="startup-selector" class="block text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
+                        <i class="fas fa-building mr-2"></i>Select Startup
+                    </label>
+                    <select id="startup-selector" 
+                            class="block w-full md:w-80 pl-4 pr-10 py-3 text-base border-2 border-gray-200 focus:outline-none focus:ring-4 focus:ring-purple-200 focus:border-purple-400 rounded-xl bg-white transition-all duration-300">
+                        <option value="">Choose a startup to analyze...</option>
+                    </select>
+                </div>
+                <button id="analyze-new-btn" 
+                        class="btn-primary text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 text-lg whitespace-nowrap">
+                    <i class="fas fa-plus mr-2"></i>Analyze New Startup
+                </button>
+            </div>
+        </div>
+        
+        <!-- Enhanced Loading Spinner -->
+        <div id="loading-spinner" class="hidden">
+            <div class="glass-card rounded-3xl p-12 text-center">
+                <div class="flex justify-center items-center flex-col">
+                    <div class="relative mb-8">
+                        <div class="w-20 h-20 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
+                        <div class="absolute inset-0 w-20 h-20 border-4 border-transparent border-r-pink-600 rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 1s;"></div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-700 mb-4">Generating Investment Insights</h2>
+                    <p class="text-gray-600 mb-6">Our AI is analyzing your documents and generating comprehensive insights...</p>
+                    
+                    <!-- Progress indicators -->
+                    <div class="w-full max-w-md space-y-4">
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Document Processing</span>
+                            <span class="loading-pulse">●●●</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Market Analysis</span>
+                            <span class="loading-pulse" style="animation-delay: 0.5s;">●●●</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Risk Assessment</span>
+                            <span class="loading-pulse" style="animation-delay: 1s;">●●●</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Tabbed Results Section -->
+        <div id="results-section" class="mt-8">
+            <!-- Enhanced Tab Navigation -->
+            <div class="glass-card rounded-t-2xl p-2 mb-0">
+                <ul class="flex flex-wrap text-sm font-semibold text-center" id="results-tabs" role="tablist">
+                    <li class="flex-1" role="presentation">
+                        <button class="w-full p-4 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-20" 
+                                id="deal-notes-tab" data-tab-target="#deal-notes-panel" type="button" role="tab">
+                            <i class="fas fa-file-alt mr-2"></i>Deal Notes
+                        </button>
+                    </li>
+                    <li class="flex-1" role="presentation">
+                        <button class="w-full p-4 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-20" 
+                                id="benchmarking-tab" data-tab-target="#benchmarking-panel" type="button" role="tab">
+                            <i class="fas fa-chart-line mr-2"></i>Benchmarking
+                        </button>
+                    </li>
+                    <li class="flex-1" role="presentation">
+                        <button class="w-full p-4 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-20" 
+                                id="risk-analysis-tab" data-tab-target="#risk-analysis-panel" type="button" role="tab">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>Risk Analysis
+                        </button>
+                    </li>
+                    <li class="flex-1" role="presentation">
+                        <button class="w-full p-4 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-20" 
+                                id="recommendation-tab" data-tab-target="#recommendation-panel" type="button" role="tab">
+                            <i class="fas fa-thumbs-up mr-2"></i>Recommendation
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Enhanced Tab Content Panels -->
+            <div id="tab-content">
+                <!-- Enhanced Initial placeholder -->
+                <div id="initial-placeholder" class="glass-card rounded-b-2xl p-16 text-center">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="mb-8">
+                            <i class="fas fa-rocket text-8xl text-gray-300 mb-6 float"></i>
+                        </div>
+                        <h2 class="text-4xl font-bold text-gray-700 mb-6">Ready for Analysis</h2>
+                        <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                            Upload your startup documents to begin comprehensive AI-powered investment analysis, 
+                            or select a previously analyzed startup from the dropdown above.
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                            <div class="p-4">
+                                <i class="fas fa-file-pdf text-2xl text-red-500 mb-2"></i>
+                                <p class="text-sm font-semibold">Pitch Decks</p>
+                            </div>
+                            <div class="p-4">
+                                <i class="fas fa-microphone text-2xl text-blue-500 mb-2"></i>
+                                <p class="text-sm font-semibold">Call Transcripts</p>
+                            </div>
+                            <div class="p-4">
+                                <i class="fas fa-chart-line text-2xl text-green-500 mb-2"></i>
+                                <p class="text-sm font-semibold">Updates</p>
+                            </div>
+                            <div class="p-4">
+                                <i class="fas fa-envelope text-2xl text-yellow-500 mb-2"></i>
+                                <p class="text-sm font-semibold">Emails</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Deal Notes Panel -->
+                <div class="hidden glass-card rounded-b-2xl" id="deal-notes-panel" role="tabpanel">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+                            <div>
+                                <h2 class="text-4xl font-bold feature-highlight">Deal Notes</h2>
+                                <p class="text-gray-600 mt-2">Comprehensive startup analysis and key insights</p>
+                            </div>
+                            <i class="fas fa-file-alt text-4xl text-gray-300"></i>
+                        </div>
+                        <div id="results-content" class="space-y-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Benchmarking Panel -->
+                <div class="hidden glass-card rounded-b-2xl" id="benchmarking-panel" role="tabpanel">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+                            <div>
+                                <h2 class="text-4xl font-bold feature-highlight">Market Benchmarking</h2>
+                                <p class="text-gray-600 mt-2">Compare against industry peers and market standards</p>
+                            </div>
+                            <i class="fas fa-chart-bar text-4xl text-gray-300"></i>
+                        </div>
+                        <div id="benchmark-content" class="space-y-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Risk Analysis Panel -->
+                <div class="hidden glass-card rounded-b-2xl" id="risk-analysis-panel" role="tabpanel">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+                            <div>
+                                <h2 class="text-4xl font-bold feature-highlight">Risk Analysis</h2>
+                                <p class="text-gray-600 mt-2">Identify potential risks and mitigation strategies</p>
+                            </div>
+                            <i class="fas fa-shield-alt text-4xl text-gray-300"></i>
+                        </div>
+                        <div id="risk-content" class="space-y-8"></div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Recommendation Panel -->
+                <div class="hidden glass-card rounded-b-2xl" id="recommendation-panel" role="tabpanel">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+                            <div>
+                                <h2 class="text-4xl font-bold feature-highlight">Investment Recommendation</h2>
+                                <p class="text-gray-600 mt-2">AI-powered investment decision with customizable weights</p>
+                            </div>
+                            <i class="fas fa-lightbulb text-4xl text-gray-300"></i>
+                        </div>
+                        
+                        <div id="weights-form-container" class="mb-12">
+                            <!-- Weightages form will be injected here -->
+                        </div>
+                        <div id="recommendation-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-   <script>
+    <script>
+        // --- Global State ---
+        let allAnalyses = {}; // Store all results, keyed by startup name
+
+        // --- Element Selectors ---
         const uploadForm = document.getElementById('upload-form');
         const pitchDeckInput = document.getElementById('pitch-deck-file');
         const transcriptInput = document.getElementById('transcript-file');
         const updateInput = document.getElementById('update-file');
         const emailInput = document.getElementById('email-file');
         const submitButton = uploadForm.querySelector('button[type="submit"]');
-        const uploadSection = document.getElementById('upload-section');
+        const startupNameInput = document.getElementById('startup-name-input');
+        const startupSelector = document.getElementById('startup-selector');
         const loadingSpinner = document.getElementById('loading-spinner');
         const resultsSection = document.getElementById('results-section');
         const resultsContent = document.getElementById('results-content');
         const benchmarkContent = document.getElementById('benchmark-content');
-        const riskContent = document.getElementById('risk-content'); // New element for risks
+        const riskContent = document.getElementById('risk-content');
         const INGESTION_SERVICE_URL = 'http://127.0.0.1:8000/ingest/file';
         const BENCHMARKING_SERVICE_URL = 'http://127.0.0.1:8002/benchmark';
         const SYNTHESIS_SERVICE_URL = 'http://127.0.0.1:8003/generate-recommendation';
+        const uploadModal = document.getElementById('upload-modal');
+        const analyzeNewBtn = document.getElementById('analyze-new-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const initialPlaceholder = document.getElementById('initial-placeholder');
+        const tabContent = document.getElementById('tab-content');
 
-        // --- FIX: Moved helper function to the global scope ---
+        // --- Enhanced Weights Form HTML ---
+        const weightsFormHTML = `
+            <div class="glass rounded-2xl p-8">
+                <h3 class="text-2xl font-bold mb-3 feature-highlight">
+                    <i class="fas fa-sliders-h mr-3"></i>Investment Thesis Configuration
+                </h3>
+                <p class="text-gray-600 mb-8">Customize the weight of each investment pillar to match your investment philosophy. Total must equal 100%.</p>
+                
+                <form id="weights-form" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="stat-card team rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-users text-2xl text-green-500 mr-3"></i>
+                                    <span class="font-bold text-lg">Team</span>
+                                </div>
+                                <span class="text-2xl font-bold text-green-500" id="team-weight-value">25%</span>
+                            </div>
+                            <input type="range" id="team-weight" min="0" max="100" value="25" 
+                                   class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-green">
+                            <div class="mt-2 text-sm text-gray-600">Founder experience, team composition, execution capability</div>
+                        </div>
+                        
+                        <div class="stat-card product rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-cog text-2xl text-blue-500 mr-3"></i>
+                                    <span class="font-bold text-lg">Product</span>
+                                </div>
+                                <span class="text-2xl font-bold text-blue-500" id="product-weight-value">25%</span>
+                            </div>
+                            <input type="range" id="product-weight" min="0" max="100" value="25" 
+                                   class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-blue">
+                            <div class="mt-2 text-sm text-gray-600">Product-market fit, innovation, technical differentiation</div>
+                        </div>
+                        
+                        <div class="stat-card market rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-chart-line text-2xl text-yellow-500 mr-3"></i>
+                                    <span class="font-bold text-lg">Market</span>
+                                </div>
+                                <span class="text-2xl font-bold text-yellow-500" id="market-weight-value">25%</span>
+                            </div>
+                            <input type="range" id="market-weight" min="0" max="100" value="25" 
+                                   class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-yellow">
+                            <div class="mt-2 text-sm text-gray-600">Market size, growth potential, competitive landscape</div>
+                        </div>
+                        
+                        <div class="stat-card financials rounded-2xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dollar-sign text-2xl text-red-500 mr-3"></i>
+                                    <span class="font-bold text-lg">Financials</span>
+                                </div>
+                                <span class="text-2xl font-bold text-red-500" id="financials-weight-value">25%</span>
+                            </div>
+                            <input type="range" id="financials-weight" min="0" max="100" value="25" 
+                                   class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-red">
+                            <div class="mt-2 text-sm text-gray-600">Revenue growth, unit economics, funding efficiency</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center p-6 glass rounded-2xl">
+                        <div class="text-3xl font-bold mb-4" id="total-weight">Total: 100%</div>
+                        <div class="w-full bg-gray-200 rounded-full h-4 mb-6">
+                            <div class="progress-bar h-4 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <button type="submit" id="generate-recommendation-btn" 
+                                class="btn-primary text-white font-bold py-4 px-12 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-300 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed text-lg">
+                            <i class="fas fa-magic mr-3"></i>Generate AI Recommendation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
         const parseFinancialString = (str) => {
             if (str === null || str === undefined) return null;
             if (typeof str !== 'string') return str;
             const value = parseFloat(str.replace(/[^0-9.-]+/g, ""));
-            if (isNaN(value)) return null;
+            if (isNaN(value)) return str;
             if (str.toLowerCase().includes('b')) return value * 1e9;
             if (str.toLowerCase().includes('m')) return value * 1e6;
             if (str.toLowerCase().includes('k')) return value * 1e3;
             return value;
         };
 
-        const allInputs = [pitchDeckInput, transcriptInput, updateInput, emailInput];
+        const allInputs = [startupNameInput, pitchDeckInput, transcriptInput, updateInput, emailInput];
+        const fileTypeInputs = [pitchDeckInput, transcriptInput, updateInput, emailInput];
 
         const checkInputs = () => {
-            // Enable the submit button if at least one file is selected
-            const anyFileSelected = allInputs.some(input => input.files.length > 0);
-            submitButton.disabled = !anyFileSelected;
+            const anyFileSelected = fileTypeInputs.some(input => input.files.length > 0);
+            const nameFilled = startupNameInput.value.trim() !== '';
+            submitButton.disabled = !(anyFileSelected && nameFilled);
         };
 
         allInputs.forEach(input => input.addEventListener('change', checkInputs));
+        startupNameInput.addEventListener('input', checkInputs);
+
+        // --- Enhanced Modal Handling ---
+        const openModal = () => {
+            uploadModal.classList.remove('hidden');
+            setTimeout(() => {
+                uploadModal.classList.remove('opacity-0');
+                uploadModal.querySelector('.modal-content').classList.remove('scale-95');
+            }, 10);
+        };
+
+        const closeModal = () => {
+            uploadModal.classList.add('opacity-0');
+            uploadModal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                uploadModal.classList.add('hidden');
+                uploadForm.reset();
+                document.querySelectorAll('.file-input-wrapper [id$="-file-name"]').forEach(el => el.textContent = el.dataset.originalText);
+                checkInputs();
+            }, 300);
+        };
+
+        analyzeNewBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+
+        // --- Enhanced Drag and Drop & File Name Display ---
+        const fileInputs = document.querySelectorAll('.file-input-wrapper');
+        fileInputs.forEach(wrapper => {
+            const input = wrapper.querySelector('input[type="file"]');
+            const nameEl = wrapper.querySelector('[id$="-file-name"]');
+            const originalText = nameEl.textContent;
+            nameEl.dataset.originalText = originalText;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                wrapper.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            wrapper.addEventListener('dragover', () => wrapper.classList.add('dragover'));
+            wrapper.addEventListener('dragleave', () => wrapper.classList.remove('dragover'));
+            wrapper.addEventListener('drop', (e) => {
+                wrapper.classList.remove('dragover');
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change'));
+            });
+            input.addEventListener('change', () => nameEl.textContent = input.files.length > 0 ? input.files[0].name : originalText);
+        });
 
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // --- New Logic: Collect all selected files ---
+            const startupName = startupNameInput.value.trim();
+            if (allAnalyses[startupName]) {
+                alert(`An analysis for "${startupName}" already exists. Please choose a different name or select it from the dropdown.`);
+                return;
+            }
+
             const formData = new FormData();
             let fileFound = false;
-            allInputs.forEach(input => {
-                if (input.files.length > 0) {
-                    // The backend expects a list of files under the key 'files'
+            fileTypeInputs.forEach(input => {
+                if (input.files && input.files.length > 0) {
                     formData.append('files', input.files[0]);
                     fileFound = true;
                 }
@@ -172,10 +719,9 @@
                 return;
             }
 
-            uploadSection.classList.add('hidden');
+            closeModal();
+            tabContent.classList.add('hidden');
             loadingSpinner.classList.remove('hidden');
-            resultsSection.classList.add('hidden');
-            document.getElementById('recommendation-section').classList.add('hidden');
 
             try {
                 const ingestResponse = await fetch(INGESTION_SERVICE_URL, { method: 'POST', body: formData });
@@ -184,7 +730,6 @@
                 const startupData = ingestData.data;
                 
                 let benchmarkData = null;
-                // --- FIX: Use the data directly from the ingestion service response ---
                 const { startup_name, industry_vertical, sector, financials } = ingestData.data;
                 
                 if (industry_vertical && sector) {
@@ -192,18 +737,12 @@
                         startup_name,
                         industry_vertical,
                         sector,
-                        // --- FIX: Make financial key lookup more robust ---
-                        // Look for Annual Revenue, or calculate it from MRR, or use GMV as a fallback.
                         annual_revenue: parseFinancialString(
                             financials['Annual Revenue'] || financials['Revenue'] || financials['yearly revenue']
                         ) || (parseFinancialString(financials['MRR']) ? parseFinancialString(financials['MRR']) * 12 : parseFinancialString(financials['GMV'])),
-
-                        // Look for various hiring-related keys.
                         hiring_velocity: parseFinancialString(
                             financials['Hiring Velocity'] || financials['hiring_velocity'] || financials['New Hires'] || financials['Drivers Onboarded'] || null
                         ),
-
-                        // Look for various valuation keys.
                         valuation_usd: parseFinancialString(
                             financials['Valuation USD'] || financials['Market Valuation'] || financials['valuation'] ||financials['Valuation'] || financials['Company Valuation'] || financials["company's valuation"] || financials['company valuation'] || null
                         )
@@ -222,7 +761,6 @@
                     }
                 }
 
-                // --- NEW: Asynchronously call the risk analysis endpoint ---
                 let riskData = null;
                 try {
                     const riskResponse = await fetch(`${BENCHMARKING_SERVICE_URL.replace('/benchmark', '/analyze-risks')}`, {
@@ -238,72 +776,157 @@
                 } catch (riskError) {
                     console.error("Error calling risk analysis service:", riskError);
                 }
-                // --- END NEW ---
-
-                displayResults(startupData, benchmarkData, riskData);
+                
+                allAnalyses[startupName] = { startupData, benchmarkData, riskData };
+                updateStartupSelector(startupName);
+                displayResultsForStartup(startupName);
 
             } catch (error) {
                 console.error('Error:', error);
-                displayError(error.message);
+                alert(`An error occurred: ${error.message}`);
             } finally {
                 loadingSpinner.classList.add('hidden');
-                resultsSection.classList.remove('hidden');
-                document.getElementById('recommendation-section').classList.remove('hidden');
+                tabContent.classList.remove('hidden');
+                initialPlaceholder.classList.add('hidden');
             }
         });
 
-        // --- NEW: Logic for Recommendation Weightages ---
-        const weightsForm = document.getElementById('weights-form');
-        const sliders = {
-            team: document.getElementById('team-weight'),
-            product: document.getElementById('product-weight'),
-            market: document.getElementById('market-weight'),
-            financials: document.getElementById('financials-weight')
-        };
-        const values = {
-            team: document.getElementById('team-weight-value'),
-            product: document.getElementById('product-weight-value'),
-            market: document.getElementById('market-weight-value'),
-            financials: document.getElementById('financials-weight-value')
-        };
-        const totalWeightEl = document.getElementById('total-weight');
-        const generateBtn = document.getElementById('generate-recommendation-btn');
+        // --- Enhanced Tab switching logic ---
+        const tabs = document.querySelectorAll('[role="tab"]');
+        const tabPanels = document.querySelectorAll('[role="tabpanel"]');
 
-        const updateTotal = () => {
-            const total = Object.values(sliders).reduce((sum, s) => sum + parseInt(s.value), 0);
-            totalWeightEl.textContent = `Total: ${total}%`;
-            if (total === 100) {
-                totalWeightEl.classList.remove('text-red-500');
-                totalWeightEl.classList.add('text-green-600');
-                generateBtn.disabled = false;
+        function updateStartupSelector(selectedName) {
+            startupSelector.innerHTML = '<option value="">Choose a startup to analyze...</option>';
+            Object.keys(allAnalyses).forEach(name => {
+                const option = new Option(name, name, false, name === selectedName);
+                startupSelector.add(option);
+            });
+        }
+        
+        startupSelector.addEventListener('change', (e) => {
+            if (e.target.value) {
+                displayResultsForStartup(e.target.value);
             } else {
-                totalWeightEl.classList.add('text-red-500');
-                totalWeightEl.classList.remove('text-green-600');
-                generateBtn.disabled = true;
+                showInitialPlaceholder();
             }
+        });
+
+        const showTab = (targetId) => {
+            tabPanels.forEach(panel => {
+                if (`#${panel.id}` === targetId) {
+                    panel.classList.remove('hidden');
+                } else {
+                    panel.classList.add('hidden');
+                }
+            });
+
+            tabs.forEach(tab => {
+                if (tab.dataset.tabTarget === targetId) {
+                    tab.classList.add('tab-active');
+                } else {
+                    tab.classList.remove('tab-active');
+                }
+            });
         };
 
-        Object.entries(sliders).forEach(([key, slider]) => {
-            slider.addEventListener('input', () => {
-                values[key].textContent = `${slider.value}%`;
-                updateTotal();
+        const showInitialPlaceholder = () => {
+            initialPlaceholder.classList.remove('hidden');
+            tabPanels.forEach(panel => panel.classList.add('hidden'));
+            tabs.forEach(tab => tab.classList.remove('tab-active'));
+        };
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.dataset.tabTarget;
+                showTab(targetId);
             });
         });
 
-        weightsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const startupData = JSON.parse(e.target.dataset.startupData); // Retrieve stored data
+        function displayResultsForStartup(startupName) {
+            const { startupData, benchmarkData, riskData } = allAnalyses[startupName];
+            if (!startupData) return;
 
-            const weights = {
-                team: parseInt(sliders.team.value) / 100,
-                product: parseInt(sliders.product.value) / 100,
-                market: parseInt(sliders.market.value) / 100,
-                financials: parseInt(sliders.financials.value) / 100
+            initialPlaceholder.classList.add('hidden');
+            tabContent.classList.remove('hidden');
+
+            displayResults(startupData, benchmarkData, riskData);
+            showTab('#deal-notes-panel');
+        }
+
+        function setupRecommendationForm(startupData) {
+            const weightsContainer = document.getElementById('weights-form-container');
+            weightsContainer.innerHTML = weightsFormHTML;
+
+            const weightsForm = document.getElementById('weights-form');
+            weightsForm.dataset.startupData = JSON.stringify(startupData);
+            initializeWeightSliders(weightsForm);
+        }
+
+        function initializeWeightSliders(formElement) {
+            const localSliders = {
+                team: formElement.querySelector('#team-weight'),
+                product: formElement.querySelector('#product-weight'),
+                market: formElement.querySelector('#market-weight'),
+                financials: formElement.querySelector('#financials-weight')
+            };
+            const localValues = {
+                team: formElement.querySelector('#team-weight-value'),
+                product: formElement.querySelector('#product-weight-value'),
+                market: formElement.querySelector('#market-weight-value'),
+                financials: formElement.querySelector('#financials-weight-value')
+            };
+            const localTotalWeightEl = formElement.querySelector('#total-weight');
+            const localGenerateBtn = formElement.querySelector('#generate-recommendation-btn');
+            const progressBar = formElement.querySelector('.progress-bar');
+
+            const updateTotal = () => {
+                const total = Object.values(localSliders).reduce((sum, s) => sum + parseInt(s.value), 0);
+                localTotalWeightEl.textContent = `Total: ${total}%`;
+                progressBar.style.width = `${total}%`;
+                
+                if (total === 100) {
+                    localTotalWeightEl.classList.remove('text-red-500');
+                    localTotalWeightEl.classList.add('text-green-600');
+                    localGenerateBtn.disabled = false;
+                    progressBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+                } else {
+                    localTotalWeightEl.classList.add('text-red-500');
+                    localTotalWeightEl.classList.remove('text-green-600');
+                    localGenerateBtn.disabled = true;
+                    progressBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+                }
             };
 
+            Object.entries(localSliders).forEach(([key, slider]) => {
+                slider.addEventListener('input', () => {
+                    localValues[key].textContent = `${slider.value}%`;
+                    updateTotal();
+                });
+            });
+
+            formElement.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const startupData = JSON.parse(e.target.dataset.startupData);
+                const weights = {
+                    team: parseInt(localSliders.team.value) / 100,
+                    product: parseInt(localSliders.product.value) / 100,
+                    market: parseInt(localSliders.market.value) / 100,
+                    financials: parseInt(localSliders.financials.value) / 100
+                };
+                await generateRecommendation(startupData, weights);
+            });
+            updateTotal();
+        }
+
+        async function generateRecommendation(startupData, weights) {
             const payload = { startup_data: startupData, weights: weights };
             const resultContainer = document.getElementById('recommendation-result');
-            resultContainer.innerHTML = `<p class="text-center">Generating recommendation...</p>`;
+            resultContainer.innerHTML = `
+                <div class="glass rounded-2xl p-8 text-center">
+                    <div class="animate-spin w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full mx-auto mb-4"></div>
+                    <p class="text-xl font-semibold text-gray-700">Generating AI-powered recommendation...</p>
+                </div>
+            `;
 
             try {
                 const response = await fetch(SYNTHESIS_SERVICE_URL, {
@@ -317,38 +940,68 @@
                 displayRecommendation(recData);
 
             } catch (error) {
-                resultContainer.innerHTML = `<p class="text-red-500 text-center">${error.message}</p>`;
+                resultContainer.innerHTML = `
+                    <div class="bg-red-100 border border-red-300 rounded-2xl p-8 text-center">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                        <p class="text-red-700 text-xl font-semibold">${error.message}</p>
+                    </div>
+                `;
             }
-        });
+        }
 
         function displayRecommendation(recData) {
             const resultContainer = document.getElementById('recommendation-result');
             const verdictColors = {
-                'Fund': 'bg-green-100 border-green-500 text-green-800',
-                'Review': 'bg-yellow-100 border-yellow-500 text-yellow-800',
-                'Pass': 'bg-red-100 border-red-500 text-red-800'
+                'Fund': 'bg-gradient-to-r from-green-100 to-emerald-100 border-green-400 text-green-800',
+                'Review': 'bg-gradient-to-r from-yellow-100 to-amber-100 border-yellow-400 text-yellow-800',
+                'Pass': 'bg-gradient-to-r from-red-100 to-rose-100 border-red-400 text-red-800'
             };
 
-            const pillarHTML = recData.pillar_scores.map(p => `
-                <div class="flex justify-between items-center py-2 border-b">
-                    <span class="font-semibold">${p.pillar}</span>
-                    <div class="text-right">
-                        <span class="font-bold text-lg">${p.score}/10</span>
-                        <p class="text-xs text-gray-500">${p.reasoning}</p>
+            const verdictIcons = {
+                'Fund': 'fas fa-thumbs-up',
+                'Review': 'fas fa-clock',
+                'Pass': 'fas fa-thumbs-down'
+            };
+
+            const pillarHTML = recData.pillar_scores.map(p => {
+                const scoreColor = p.score >= 8 ? 'text-green-600' : p.score >= 6 ? 'text-yellow-600' : 'text-red-600';
+                const scoreWidth = (p.score / 10) * 100;
+                
+                return `
+                <div class="glass rounded-xl p-6 mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-lg">${p.pillar}</span>
+                        <span class="font-bold text-2xl ${scoreColor}">${p.score}/10</span>
                     </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 mb-3">
+                        <div class="progress-bar h-3 rounded-full" style="width: ${scoreWidth}%"></div>
+                    </div>
+                    <p class="text-gray-600 text-sm">${p.reasoning}</p>
                 </div>
-            `).join('');
+                `;
+            }).join('');
 
             resultContainer.innerHTML = `
-                <div class="border rounded-lg p-6 ${verdictColors[recData.final_verdict] || 'bg-gray-100'}">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-2xl font-bold">${recData.final_verdict}</h3>
-                            <p class="text-lg">${recData.recommendation_summary}</p>
+                <div class="glass rounded-2xl overflow-hidden">
+                    <div class="border-2 ${verdictColors[recData.final_verdict] || 'bg-gray-100'} p-8">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-4">
+                                    <i class="${verdictIcons[recData.final_verdict]} text-4xl mr-4"></i>
+                                    <h3 class="text-4xl font-bold">${recData.final_verdict}</h3>
+                                </div>
+                                <p class="text-xl leading-relaxed">${recData.recommendation_summary}</p>
+                            </div>
+                            <div class="text-center ml-8">
+                                <div class="text-6xl font-bold mb-2">${recData.final_score.toFixed(1)}</div>
+                                <div class="text-lg text-gray-600">Overall Score</div>
+                            </div>
                         </div>
-                        <div class="text-3xl font-bold text-right">${recData.final_score.toFixed(1)}<span class="text-base">/10</span></div>
                     </div>
-                    <div class="mt-6 bg-white/50 p-4 rounded">${pillarHTML}</div>
+                    <div class="p-8 bg-white bg-opacity-50">
+                        <h4 class="text-2xl font-bold mb-6 feature-highlight">Detailed Analysis</h4>
+                        ${pillarHTML}
+                    </div>
                 </div>
             `;
         }
@@ -359,14 +1012,10 @@
             riskContent.innerHTML = '';
 
             if (benchmarkData && benchmarkData.peer_details.length > 0) {
-
-                // Store startup data for the recommendation form
-                document.getElementById('weights-form').dataset.startupData = JSON.stringify(data);
-
                 const formatNum = (num, isCurrency = false, isCompact = true) => {
                     if (num === null || num === undefined) return 'N/A';
                     if (typeof num === 'string') {
-                        const value = parseFinancialString(num); // Use the global helper
+                        const value = parseFinancialString(num);
                         if (value === null) return 'N/A';
                         return formatNum(value, isCurrency, isCompact);
                     }
@@ -374,53 +1023,66 @@
                     return new Intl.NumberFormat('en-US', options).format(num);
                 }
 
-                // --- FIX: Use the same robust logic for displaying results in the table ---
                 const startupValuation = data.financials['Valuation USD'] || data.financials['Market Valuation'] || data.financials['valuation'] || data.financials['Company Valuation'] || data.financials["company's valuation"] || data.financials['company valuation'] || null;
                 
                 let startupRevenue = data.financials['Annual Revenue'] || data.financials['Revenue'] || data.financials['yearly revenue'] || null;
-                // If annual revenue isn't found, try calculating from MRR or use GMV.
                 if (!startupRevenue) {
                     const mrr = parseFinancialString(data.financials['MRR']);
                     startupRevenue = mrr ? mrr * 12 : (data.financials['GMV'] || null);
                 }
 
                 const startupMultiple = startupValuation && startupRevenue ? (parseFinancialString(startupValuation) / parseFinancialString(startupRevenue)).toFixed(1) + 'x' : 'N/A';
-                
                 const startupHiring = data.financials['Hiring Velocity'] || data.financials.hiring_velocity || data.financials['New Hires'] || data.financials['Drivers Onboarded'] || null;
 
-                // Use the corrected variables in the table row
                 const startupValuationFormatted = formatNum(startupValuation, true);
                 const startupRevenueFormatted = formatNum(startupRevenue, true);
                 
                 let tableHTML = `
-                    <div class="bg-white p-6 rounded-lg shadow-md mb-6 border">
-                        <h3 class="text-xl font-bold mb-4">Peer Comparison Table</h3>
+                    <div class="glass-card rounded-2xl p-8 mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-2xl font-bold feature-highlight">
+                                <i class="fas fa-chart-bar mr-3"></i>Peer Comparison Analysis
+                            </h3>
+                            <i class="fas fa-users text-3xl text-gray-300"></i>
+                        </div>
                         <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm text-left">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="p-3 font-semibold">Company</th>
-                                        <th class="p-3 font-semibold text-right">Valuation</th>
-                                        <th class="p-3 font-semibold text-right">Annual Revenue</th>
-                                        <th class="p-3 font-semibold text-right">Revenue Multiple</th>
-                                        <th class="p-3 font-semibold text-right">Hiring Velocity</th>
+                            <table class="min-w-full text-sm">
+                                <thead>
+                                    <tr class="bg-gradient-to-r from-purple-100 to-blue-100">
+                                        <th class="p-4 font-bold text-left rounded-tl-lg">Company</th>
+                                        <th class="p-4 font-bold text-right">Valuation</th>
+                                        <th class="p-4 font-bold text-right">Annual Revenue</th>
+                                        <th class="p-4 font-bold text-right">Revenue Multiple</th>
+                                        <th class="p-4 font-bold text-right rounded-tr-lg">Hiring Velocity</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="bg-blue-50 font-semibold border-b">
-                                        <td class="p-3">${data.startup_name} (Your Startup)</td>
-                                        <td class="p-3 text-right">${startupValuationFormatted}</td>
-                                        <td class="p-3 text-right">${startupRevenueFormatted}</td>
-                                        <td class="p-3 text-right">${startupMultiple}</td>
-                                        <td class="p-3 text-right">${formatNum(startupHiring)}</td>
+                                    <tr class="bg-gradient-to-r from-blue-50 to-purple-50 font-semibold border-b-2 border-blue-200">
+                                        <td class="p-4">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                                ${data.startup_name} (Your Startup)
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-right font-bold">${startupValuationFormatted}</td>
+                                        <td class="p-4 text-right font-bold">${startupRevenueFormatted}</td>
+                                        <td class="p-4 text-right font-bold">${startupMultiple}</td>
+                                        <td class="p-4 text-right font-bold">${formatNum(startupHiring)}</td>
                                     </tr>
-                                    ${benchmarkData.peer_details.map(peer => `
-                                    <tr class="border-b">
-                                        <td class="p-3">${peer.startup_name}</td>
-                                        <td class="p-3 text-right">${formatNum(peer.valuation_usd, true)}</td>
-                                        <td class="p-3 text-right">${formatNum(peer.annual_revenue, true)}</td>
-                                        <td class="p-3 text-right">${peer.revenue_multiple ? peer.revenue_multiple.toFixed(1) + 'x' : 'N/A'}</td>
-                                        <td class="p-3 text-right">${formatNum(peer.hiring_velocity)}</td>
+                                    ${benchmarkData.peer_details.map((peer, index) => `
+                                    <tr class="border-b hover:bg-gray-50 transition-colors">
+                                        <td class="p-4">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold mr-3">
+                                                    ${index + 1}
+                                                </div>
+                                                ${peer.startup_name}
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-right">${formatNum(peer.valuation_usd, true)}</td>
+                                        <td class="p-4 text-right">${formatNum(peer.annual_revenue, true)}</td>
+                                        <td class="p-4 text-right">${peer.revenue_multiple ? peer.revenue_multiple.toFixed(1) + 'x' : 'N/A'}</td>
+                                        <td class="p-4 text-right">${formatNum(peer.hiring_velocity)}</td>
                                     </tr>
                                     `).join('')}
                                 </tbody>
@@ -430,61 +1092,205 @@
                 `;
 
                 tableHTML += `
-                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-6 rounded-lg shadow-md mb-6">
-                        <h3 class="text-xl font-bold mb-2">Final Conclusion</h3>
-                        <p class="text-lg">${benchmarkData.final_conclusion}</p>
+                    <div class="glass rounded-2xl p-8 border-l-4 border-blue-500">
+                        <div class="flex items-start">
+                            <i class="fas fa-lightbulb text-3xl text-blue-500 mr-4 mt-1"></i>
+                            <div>
+                                <h3 class="text-2xl font-bold text-blue-800 mb-4">Market Intelligence Summary</h3>
+                                <p class="text-lg text-gray-700 leading-relaxed">${benchmarkData.final_conclusion}</p>
+                            </div>
+                        </div>
                     </div>
                 `;
                 benchmarkContent.innerHTML = tableHTML;
+            } else {
+                benchmarkContent.innerHTML = `
+                    <div class="glass rounded-2xl p-12 text-center">
+                        <i class="fas fa-chart-line text-6xl text-gray-300 mb-6"></i>
+                        <h3 class="text-2xl font-bold text-gray-600 mb-4">No Benchmarking Data Available</h3>
+                        <p class="text-gray-500 text-lg">Benchmarking analysis could not be generated due to missing financial metrics or lack of comparable peers in our database.</p>
+                    </div>
+                `;
             }
 
-            // --- NEW: Render Risk Analysis Section ---
+            // Enhanced Risk Analysis Section
             if (riskData && riskData.risk_analysis && riskData.risk_analysis.length > 0) {
                 const severityColors = {
-                    'Low': 'bg-yellow-100 border-yellow-400 text-yellow-800',
-                    'Medium': 'bg-orange-100 border-orange-400 text-orange-800',
-                    'High': 'bg-red-100 border-red-400 text-red-800',
+                    'Low': 'risk-low',
+                    'Medium': 'risk-medium',
+                    'High': 'risk-high',
                 };
 
-                const riskItemsHTML = riskData.risk_analysis.map(item => {
-                    const colorClasses = severityColors[item.severity] || 'bg-gray-100 border-gray-400 text-gray-800';
+                const severityIcons = {
+                    'Low': 'fas fa-info-circle',
+                    'Medium': 'fas fa-exclamation-triangle',
+                    'High': 'fas fa-exclamation-circle',
+                };
+
+                const riskItemsHTML = riskData.risk_analysis.map((item, index) => {
+                    const colorClasses = severityColors[item.severity] || 'bg-gray-100';
+                    const iconClass = severityIcons[item.severity] || 'fas fa-question-circle';
+                    
                     return `
-                        <div class="p-4 rounded-lg border-l-4 ${colorClasses}">
-                            <div class="flex justify-between items-center">
-                                <p class="font-bold">${item.risk}</p>
-                                <span class="text-sm font-semibold px-2 py-1 rounded-full ${colorClasses}">${item.severity}</span>
+                        <div class="glass-card rounded-2xl p-6 ${colorClasses} mb-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-white bg-opacity-50 rounded-full flex items-center justify-center mr-4">
+                                        <i class="${iconClass} text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg">${item.risk}</h4>
+                                        <span class="inline-block mt-1 px-3 py-1 text-xs font-semibold rounded-full bg-white bg-opacity-30">
+                                            ${item.severity} Risk
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-2xl font-bold opacity-20">${index + 1}</div>
                             </div>
-                            <p class="mt-2 text-sm">${item.explanation}</p>
+                            <p class="text-gray-800 leading-relaxed">${item.explanation}</p>
                         </div>
                     `;
                 }).join('');
 
                 const riskSectionHTML = `
-                    <div class="mb-6"><h3 class="text-xl font-bold mb-4 border-b pb-2">Risk Analysis</h3><div class="space-y-4">${riskItemsHTML}</div></div>
+                    <div class="space-y-6">
+                        <div class="text-center mb-8">
+                            <h3 class="text-3xl font-bold feature-highlight mb-4">
+                                <i class="fas fa-shield-alt mr-3"></i>Risk Assessment Dashboard
+                            </h3>
+                            <p class="text-gray-600 text-lg">Comprehensive analysis of potential investment risks and concerns</p>
+                        </div>
+                        ${riskItemsHTML}
+                        <div class="glass rounded-2xl p-6 text-center">
+                            <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
+                                <div class="p-3">
+                                    <div class="w-4 h-4 bg-gradient-to-r from-yellow-300 to-yellow-400 rounded-full mx-auto mb-2"></div>
+                                    <div class="text-xs font-semibold">Low Risk</div>
+                                </div>
+                                <div class="p-3">
+                                    <div class="w-4 h-4 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full mx-auto mb-2"></div>
+                                    <div class="text-xs font-semibold">Medium Risk</div>
+                                </div>
+                                <div class="p-3">
+                                    <div class="w-4 h-4 bg-gradient-to-r from-red-400 to-red-500 rounded-full mx-auto mb-2"></div>
+                                    <div class="text-xs font-semibold">High Risk</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 `;
-                // Add the risk section to its dedicated container
                 riskContent.innerHTML = riskSectionHTML;
+            } else {
+                riskContent.innerHTML = `
+                    <div class="glass rounded-2xl p-12 text-center">
+                        <i class="fas fa-shield-check text-6xl text-green-300 mb-6"></i>
+                        <h3 class="text-2xl font-bold text-gray-600 mb-4">Low Risk Profile</h3>
+                        <p class="text-gray-500 text-lg">No significant risk factors were identified in the current analysis. This indicates a relatively stable investment opportunity.</p>
+                    </div>
+                `;
             }
 
-            const renderField = (label, value) => {
+            // Enhanced Deal Notes Section
+            const renderField = (label, value, depth = 0) => {
                 if (!value || (Array.isArray(value) && value.length === 0)) return '';
+                
+                const indentClass = depth > 0 ? `ml-${depth * 4}` : '';
+                const cardClass = depth === 0 ? 'glass-card rounded-2xl p-6 mb-6' : 'glass rounded-xl p-4 mb-4';
+                
                 let valueHtml = '';
                 if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                    valueHtml = `<div class="pl-4 mt-2 space-y-2 border-l-2">${Object.entries(value).map(([k, v]) => renderField(k, v)).join('')}</div>`;
+                    const subFields = Object.entries(value)
+                        .map(([k, v]) => renderField(k, v, depth + 1))
+                        .filter(html => html.length > 0)
+                        .join('');
+                    
+                    if (subFields) {
+                        valueHtml = `<div class="mt-4 space-y-3">${subFields}</div>`;
+                    }
                 } else if (Array.isArray(value)) {
-                    valueHtml = `<ul class="list-disc list-inside pl-4 mt-2">${value.map(item => `<li class="p-2 bg-gray-50 rounded mt-1">${JSON.stringify(item, null, 2)}</li>`).join('')}</ul>`;
+                    valueHtml = `
+                        <div class="mt-4 grid gap-3">
+                            ${value.map((item, index) => `
+                                <div class="glass rounded-lg p-4 bg-white bg-opacity-50">
+                                    <div class="flex items-start">
+                                        <div class="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-1">
+                                            ${index + 1}
+                                        </div>
+                                        <div class="flex-1">
+                                            <pre class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">${typeof item === 'string' ? item : JSON.stringify(item, null, 2)}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
                 } else {
-                    valueHtml = `<p class="text-gray-700">${value}</p>`;
+                    const formattedValue = typeof value === 'string' && value.length > 200 
+                        ? value 
+                        : value;
+                    valueHtml = `<div class="mt-3 text-gray-700 leading-relaxed">${formattedValue}</div>`;
                 }
-                return `<div class="mb-4"><h3 class="text-md font-semibold text-gray-600 capitalize">${label.replace(/_/g, ' ')}</h3>${valueHtml}</div>`;
+
+                const iconMap = {
+                    'startup_name': 'fas fa-building',
+                    'industry_vertical': 'fas fa-industry',
+                    'sector': 'fas fa-chart-pie',
+                    'team': 'fas fa-users',
+                    'product': 'fas fa-cog',
+                    'market': 'fas fa-globe',
+                    'financials': 'fas fa-dollar-sign',
+                    'business_model': 'fas fa-chart-line',
+                    'competition': 'fas fa-chess',
+                    'growth': 'fas fa-trending-up',
+                    'funding': 'fas fa-money-bill-wave'
+                };
+
+                const icon = iconMap[label.toLowerCase()] || 'fas fa-info-circle';
+                const formattedLabel = label.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                return `
+                    <div class="${cardClass} ${indentClass}">
+                        <div class="flex items-center mb-3">
+                            <i class="${icon} text-2xl text-purple-500 mr-3"></i>
+                            <h3 class="text-xl font-bold text-gray-800">${formattedLabel}</h3>
+                        </div>
+                        ${valueHtml}
+                    </div>
+                `;
             };
+
+            // Render all deal notes fields
             for (const [key, value] of Object.entries(data)) {
                 resultsContent.innerHTML += renderField(key, value);
             }
+
+            setupRecommendationForm(data);
         }
+
         function displayError(errorMessage) {
-            resultsContent.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert"><p class="font-bold">An Error Occurred</p><p>${errorMessage}</p></div>`;
+            resultsContent.innerHTML = `
+                <div class="glass-card rounded-2xl p-8 border-l-4 border-red-500">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-500 mr-4"></i>
+                        <div>
+                            <h3 class="text-xl font-bold text-red-700 mb-2">Analysis Error</h3>
+                            <p class="text-red-600">${errorMessage}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
+
+        // Initialize with first tab active
+        showTab('#deal-notes-panel');
+        
+        // Add some initial visual feedback
+        setTimeout(() => {
+            const floatingElements = document.querySelectorAll('.float');
+            floatingElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.5}s`;
+            });
+        }, 100);
     </script>
 </body>
 </html>

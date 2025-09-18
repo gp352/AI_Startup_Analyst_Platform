@@ -737,15 +737,14 @@
                         startup_name,
                         industry_vertical,
                         sector,
-                        annual_revenue: parseFinancialString(
-                            financials['Annual Revenue'] || financials['Revenue'] || financials['yearly revenue']
-                        ) || (parseFinancialString(financials['MRR']) ? parseFinancialString(financials['MRR']) * 12 : parseFinancialString(financials['GMV'])),
-                        hiring_velocity: parseFinancialString(
-                            financials['Hiring Velocity'] || financials['hiring_velocity'] || financials['New Hires'] || financials['Drivers Onboarded'] || null
-                        ),
-                        valuation_usd: parseFinancialString(
-                            financials['Valuation USD'] || financials['Market Valuation'] || financials['valuation'] ||financials['Valuation'] || financials['Company Valuation'] || financials["company's valuation"] || financials['company valuation'] || null
-                        )
+                        annual_revenue: parseFinancialString(financials['Annual Revenue'] || financials['Revenue'] || financials['yearly revenue']) 
+                                      || (parseFinancialString(financials['MRR']) ? parseFinancialString(financials['MRR']) * 12 : null)
+                                      || parseFinancialString(financials['GMV (Feb 2010)']) // Added GMV as a fallback
+                                      || parseFinancialString(financials['GMV']),
+                        hiring_velocity: parseFinancialString(financials['Hiring Velocity'] || financials['hiring_velocity'] || financials['New Hires'])
+                                      || parseFinancialString(financials['Drivers Onboarded (Feb 2010)']) // Added Drivers Onboarded as a fallback
+                                      || parseFinancialString(financials['Drivers Onboarded']),
+                        valuation_usd: parseFinancialString(financials['Valuation USD'] || financials['Market Valuation'] || financials['valuation'] || financials['Valuation'] || financials['Company Valuation'] || financials["company's valuation"] || financials['company valuation'])
                     };
 
                     const benchmarkResponse = await fetch(BENCHMARKING_SERVICE_URL, {
@@ -1026,13 +1025,13 @@
                 const startupValuation = data.financials['Valuation USD'] || data.financials['Market Valuation'] || data.financials['valuation'] || data.financials['Company Valuation'] || data.financials["company's valuation"] || data.financials['company valuation'] || null;
                 
                 let startupRevenue = data.financials['Annual Revenue'] || data.financials['Revenue'] || data.financials['yearly revenue'] || null;
-                if (!startupRevenue) {
+                if (!startupRevenue) { // More robust revenue check
                     const mrr = parseFinancialString(data.financials['MRR']);
-                    startupRevenue = mrr ? mrr * 12 : (data.financials['GMV'] || null);
+                    startupRevenue = mrr ? mrr * 12 : (data.financials['GMV (Feb 2010)'] || data.financials['GMV'] || null);
                 }
 
                 const startupMultiple = startupValuation && startupRevenue ? (parseFinancialString(startupValuation) / parseFinancialString(startupRevenue)).toFixed(1) + 'x' : 'N/A';
-                const startupHiring = data.financials['Hiring Velocity'] || data.financials.hiring_velocity || data.financials['New Hires'] || data.financials['Drivers Onboarded'] || null;
+                const startupHiring = data.financials['Hiring Velocity'] || data.financials.hiring_velocity || data.financials['New Hires'] || data.financials['Drivers Onboarded (Feb 2010)'] || data.financials['Drivers Onboarded'] || null;
 
                 const startupValuationFormatted = formatNum(startupValuation, true);
                 const startupRevenueFormatted = formatNum(startupRevenue, true);

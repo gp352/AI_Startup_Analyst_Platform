@@ -1,17 +1,27 @@
 import os
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-from google.cloud import bigquery
-from dotenv import load_dotenv 
+from pydantic import BaseModel
+from google.cloud import bigquery, aiplatform
 from fastapi.middleware.cors import CORSMiddleware
-import google.generativeai as genai
+from vertexai.generative_models import GenerativeModel
 
 # --- Configuration ---
-load_dotenv()
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT")
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "ai-analyst-85388")
 TABLE_ID = "startup_data.peer_metrics"
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
+# Init Vertex AI (ADC handles authentication)
+aiplatform.init(
+    project=PROJECT_ID,
+    location=os.getenv("GOOGLE_CLOUD_REGION", "us-central1"),
+)
+
+# Use Vertex AI Gemini
+model = GenerativeModel("gemini-2.5-pro")  # or gemini-1.5-pro
+
+# BigQuery client
+client = bigquery.Client()
+
+# --- FastAPI App Setup ---
 app = FastAPI(title="Detailed Benchmarking Service")
 app.add_middleware(
     CORSMiddleware,
@@ -52,10 +62,6 @@ class BenchmarkResponse(BaseModel):
     peer_details: list[PeerComparison]
     final_conclusion: str
 
-# --- BigQuery & Gemini Clients ---
-client = bigquery.Client()
-# Use a more capable model for analysis tasks
-model = genai.GenerativeModel('gemini-1.5-flash-latest') 
 
 # --- API Endpoints ---
 @app.post("/benchmark", response_model=BenchmarkResponse)
@@ -73,7 +79,7 @@ async def benchmark_metrics(request: BenchmarkRequest):
             bigquery.ScalarQueryParameter("vertical", "STRING", request.industry_vertical),
         ]
     )
-    
+
     try:
         query_job = client.query(query, job_config=job_config)
         results = query_job.result()
@@ -82,11 +88,10 @@ async def benchmark_metrics(request: BenchmarkRequest):
         if not peer_details:
             return BenchmarkResponse(peer_details=[], final_conclusion="No comparable peers found in the dataset.")
 
-        print("request", request)
-        # --- FIX: Handle potential None values before formatting the prompt ---
-        revenue_str = f"${request.annual_revenue:,}" if request.annual_revenue is not None else "N/A"
-        hiring_str = f"{request.hiring_velocity} new hires in 6 months" if request.hiring_velocity is not None else "N/A"
-        valuation_str = f"${request.valuation_usd:,}" if request.valuation_usd is not None else "N/A"
+        # Handle None values safely
+        revenue_str = f"${request.annual_revenue:,}" if request.annual_revenue else "N/A"
+        hiring_str = f"{request.hiring_velocity} new hires in 6 months" if request.hiring_velocity else "N/A"
+        valuation_str = f"${request.valuation_usd:,}" if request.valuation_usd else "N/A"
 
         prompt = f"""
         You are a venture capital analyst. Here is the data for a startup named '{request.startup_name}':
@@ -100,17 +105,18 @@ async def benchmark_metrics(request: BenchmarkRequest):
         Based on this data, write a 2-3 sentence conclusion comparing '{request.startup_name}' to its peers.
         Is it ahead or behind? Focus on valuation, revenue multiples, and hiring velocity.
         """
-        
+
         response = model.generate_content(prompt)
-        
+
         return BenchmarkResponse(
             peer_details=peer_details,
             final_conclusion=response.text.strip()
         )
 
     except Exception as e:
-        print(f"An error occurred: {e}") # Added print for better debugging
+        print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+
 
 @app.post("/analyze-risks", response_model=RiskAnalysisResponse)
 async def analyze_risks(request: RiskAnalysisRequest):
@@ -126,14 +132,8 @@ async def analyze_risks(request: RiskAnalysisRequest):
     3.  For each risk, provide a 'risk' (short title), 'explanation' (why it's a concern), and 'severity' ('Low', 'Medium', or 'High').
     4.  Your entire output MUST be a single, valid JSON object with a single key "risk_analysis" which is a list of risk items.
     5.  Do not include any text, commentary, or markdown formatting (like ```json) outside of the JSON object.
-    
-    Example Response Format:
-    {{
-        "risk_analysis": [
-            {{"risk": "Example Risk", "explanation": "This is an example.", "severity": "Medium"}}
-        ]
-    }}
     """
+
     try:
         response = model.generate_content(prompt)
         cleaned_json = response.text.strip().removeprefix("```json").removesuffix("```").strip()

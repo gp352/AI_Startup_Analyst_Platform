@@ -4,3 +4,4 @@ pydantic
 google-cloud-bigquery
 google-auth
 google-generativeai
+google-cloud-aiplatform

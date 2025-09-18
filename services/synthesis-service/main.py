@@ -1,14 +1,22 @@
 import os
+import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-import json
-import google.generativeai as genai
+from google.cloud import aiplatform
+from vertexai.generative_models import GenerativeModel
 
 # --- Configuration ---
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT")
+LOCATION = os.getenv("GOOGLE_CLOUD_REGION", "us-central1")
+
+# Initialize Vertex AI
+aiplatform.init(
+    project=PROJECT_ID,
+    location=LOCATION,
+)
 
 app = FastAPI(
     title="Synthesis & Recommendation Service",
@@ -46,8 +54,8 @@ class RecommendationResponse(BaseModel):
     recommendation_summary: str
     pillar_scores: list[PillarScore]
 
-# --- Gemini Model ---
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+# --- Vertex AI Model ---
+model = GenerativeModel("gemini-2.5-pro")  # or gemini-1.5-pro
 
 # --- Helper Functions ---
 def get_verdict(score: float) -> str:
@@ -61,7 +69,7 @@ def get_verdict(score: float) -> str:
 # --- API Endpoints ---
 @app.post("/generate-recommendation", response_model=RecommendationResponse)
 async def generate_recommendation(request: RecommendationRequest):
-    # Step 1: Score each pillar individually using the AI
+    # Step 1: Score each pillar individually using Vertex AI
     scoring_prompt = f"""
     You are an expert VC analyst. Based on the following startup data, score each of the four pillars (Team, Product, Market, Financials) on a scale of 1 to 10.
     Provide a brief, one-sentence reasoning for each score.
@@ -84,16 +92,14 @@ async def generate_recommendation(request: RecommendationRequest):
         ]
     }}
     """
+
     try:
         scoring_response = model.generate_content(scoring_prompt)
         cleaned_json = scoring_response.text.strip().removeprefix("```json").removesuffix("```").strip()
-        
-        # --- FIX: More robust JSON parsing and validation ---
         scores_dict = json.loads(cleaned_json)
         pillar_scores = [PillarScore(**item) for item in scores_dict.get("pillar_scores", [])]
-
     except Exception as e:
-        print(f"Error during pillar scoring: {e}") # Add detailed logging
+        print(f"Error during pillar scoring: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate pillar scores: {str(e)}")
 
     # Step 2: Calculate the weighted final score
@@ -124,7 +130,7 @@ async def generate_recommendation(request: RecommendationRequest):
         summary_response = model.generate_content(synthesis_prompt)
         recommendation_summary = summary_response.text.strip()
     except Exception as e:
-        print(f"Error during summary generation: {e}") # Add detailed logging
+        print(f"Error during summary generation: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate recommendation summary: {str(e)}")
 
     return RecommendationResponse(
